@@ -40,3 +40,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local design export and normalization demo scripts
+/stitch-template/
+/database/final_review/

@@ -4,7 +4,7 @@
 --
 -- Counts:
 --   users               5
---   budgets             5  (one September 2026 wallet each)
+--   budgets             5  (one November 2026 wallet each)
 --   categories          6  (shared master list)
 --   budget_allocations 30  (every user × all six categories)
 --   transactions        5  (kept; all within allocations)
@@ -28,22 +28,24 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- ------------------------------------------------------------
 -- 1. USERS (5)
 -- ------------------------------------------------------------
-INSERT INTO users (first_name, last_name, email, monthly_income) VALUES
-('Aarav',  'Sharma', 'aarav.sharma@example.com',  30000),
-('Riya',   'Mehta',  'riya.mehta@example.com',    35000),
-('Kabir',  'Shah',   'kabir.shah@example.com',    28000),
-('Ananya', 'Rao',    'ananya.rao@example.com',    40000),
-('Vihaan', 'Patel',  'vihaan.patel@example.com',  32000);
+-- password_hash is bcrypt (cost 10). Plain demo password = lowercase(first_name) + 2026.
+-- Aarav aarav2026, Riya riya2026, Kabir kabir2026, Ananya ananya2026, Vihaan vihaan2026.
+INSERT INTO users (first_name, last_name, email, password_hash, monthly_income) VALUES
+('Aarav',  'Sharma', 'aarav.sharma@example.com',  '$2b$10$yrTSaRqu.OU/PNDkmJJ7AOqdWgBDDdEC1x2ax3mt8mhMAMbvBb2iG',  30000),
+('Riya',   'Mehta',  'riya.mehta@example.com',    '$2b$10$2LO2PB3hd64opYB7ba3yje6kGkXXhFwAqES6XWfM2lAFuEBRHrC22',   35000),
+('Kabir',  'Shah',   'kabir.shah@example.com',    '$2b$10$B/tzVamzDDS8Q18JxjK/CedTxU0eo7hT/hYxLCVuH992OG53XQeU2',  28000),
+('Ananya', 'Rao',    'ananya.rao@example.com',    '$2b$10$Hl.JruIUNA9zaFXynehCU.Bh310gLReFtgV67QdSfddFk0hJ1ZNXW', 40000),
+('Vihaan', 'Patel',  'vihaan.patel@example.com',  '$2b$10$lpaxwlO/RX4WrN7NEOrXSeYBq7e23zs6xJFdgVfzpOfSongH8Tzj6',  32000);
 
 -- ------------------------------------------------------------
--- 2. BUDGETS (5) — one September 2026 wallet per user
+-- 2. BUDGETS (5) — one November 2026 wallet per user
 -- ------------------------------------------------------------
 INSERT INTO budgets (user_id, budget_month, total_amount) VALUES
-(1, '2026-09-01', 30000),
-(2, '2026-09-01', 35000),
-(3, '2026-09-01', 28000),
-(4, '2026-09-01', 40000),
-(5, '2026-09-01', 32000);
+(1, '2026-11-01', 30000),
+(2, '2026-11-01', 35000),
+(3, '2026-11-01', 28000),
+(4, '2026-11-01', 40000),
+(5, '2026-11-01', 32000);
 
 -- ------------------------------------------------------------
 -- 3. CATEGORIES (6) — shared master list
@@ -119,11 +121,11 @@ INSERT INTO budget_allocations (budget_id, category_id, allocated_amount) VALUES
 -- Aarav Rent uses the full 10000 so "exceeds allocation" demos work.
 -- ------------------------------------------------------------
 INSERT INTO transactions (user_id, budget_id, category_id, amount, description, transaction_date) VALUES
-(1, 1, 1, 10000, 'September rent payment',          '2026-09-01'),
-(1, 1, 2,   750, 'Swiggy order',                     '2026-09-05'),
-(2, 2, 2,  1200, 'Grocery shopping - Big Bazaar',    '2026-09-03'),
-(3, 3, 3,  2500, 'Flight ticket - Chennai to Mumbai','2026-09-04'),
-(4, 4, 4,  3000, 'Amazon order - clothing',          '2026-09-06');
+(1, 1, 1, 10000, 'November rent payment',           '2026-11-01'),
+(1, 1, 2,   750, 'Swiggy order',                     '2026-11-05'),
+(2, 2, 2,  1200, 'Grocery shopping - Big Bazaar',    '2026-11-03'),
+(3, 3, 3,  2500, 'Flight ticket - Chennai to Mumbai','2026-11-04'),
+(4, 4, 4,  3000, 'Amazon order - clothing',          '2026-11-06');
 
 -- ------------------------------------------------------------
 -- Verify counts

@@ -10,17 +10,18 @@ The product is **not** currently a bank, UPI, payment, investment, or advice app
 
 Review-2 database package is the backend source of truth under `database/`.
 
-1. **MySQL 8.4 LTS** database `on_the_ledge` (local): five tables + Review 2 view/routines/triggers.
-2. **SQL source of truth for Review 2:** `database/01_schema.sql` … `04_review2_demo_queries.sql`.
-3. **Optional Review-1 Next.js demo** under `src/` still uses `mysql2/promise` (not required for Review 2 viva).
-4. **Handoff docs** (`ARCHITECTURE.md`, `CHECKLIST.md`, `STATE.md`).
+1. **MySQL 8.4** database `on_the_ledge`: five tables, plus the Review 2 view, routines, and triggers.
+2. **Next.js App Router** reads and writes that database through a server-only `mysql2` pool.
+3. **Login** checks a bcrypt `password_hash` and stores a signed user id in an HttpOnly cookie. Queries use that session id, not a browser-supplied user id.
+4. **UI** follows `stitch-template/` (kept in the repo). Screens: login, dashboard, budget planning, add expense, transactions.
 
-There is no authentication, no Supabase, and no external financial APIs.
+The app refuses to connect if `DB_NAME` is not `on_the_ledge`. It does not use Supabase or external financial APIs.
 
 ```
-database/*.sql  →  MySQL 8.4 (on_the_ledge)
-                      ↑
-src/lib/db.ts  (optional Review-1 UI path)
+Browser
+  → Next.js server actions / server components
+  → src/lib/db.ts (credentials stay on the server)
+  → MySQL on_the_ledge
 ```
 
 ## Technology stack
@@ -41,7 +42,7 @@ Five tables:
 
 | Table | Role |
 | --- | --- |
-| `users` | People who own budgets and expenses |
+| `users` | People who own budgets and expenses. `password_hash` stores a bcrypt hash, never a plain password. |
 | `budgets` | Monthly budgets (`budget_month`, `total_amount`) |
 | `categories` | Shared purpose labels |
 | `budget_allocations` | Amount assigned from a budget to a category (composite PK) |
@@ -95,5 +96,5 @@ Later phases may add auth, SQL views for remaining balances, stricter allocation
 4. **`transactions.budget_id` is required and intentional.**
 5. **Remaining amounts are calculated**, not stored.
 6. **DB credentials never go to the client** — only Server Components / Actions / Route Handlers use `mysql2`.
-7. **No auth yet** — hardcoded Aarav (`user_id = 1`).
+7. **Login is local only.** bcrypt `password_hash` plus an HttpOnly cookie. No registration or external auth.
 8. **Do not regenerate schema/seed** unless explicitly instructed; live DB already has data.

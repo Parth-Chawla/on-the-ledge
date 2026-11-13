@@ -82,12 +82,26 @@ Show: `sp_user_month_spending` for Aarav (= 10750), three safe failed inserts vi
 
 ## Seed snapshot (for viva)
 
-- Users: Aarav, Riya, Kabir, Ananya, Vihaan  
-- Budgets: one September 2026 wallet each  
-- Allocations: Aarav Rent 10000 + Food 5000; Riya Food; Kabir Travel; Ananya Shopping  
-- Vihaan: budget only (no allocations / no transactions) — LEFT JOIN + EXCEPT demos  
-- Aarav Rent fully spent → easy “exceeds allocation” trigger demo  
+- Users: Aarav, Riya, Kabir, Ananya, Vihaan
+- Budgets: one November 2026 wallet each
+- Categories: Rent, Food, Travel, Shopping, Entertainment, Savings
+- Allocations: every user has all six categories, and each budget's allocations sum to its total
+- Aarav Rent is fully spent, so an extra rent expense is rejected by the trigger
 
-## Out of scope for Review 2
+## Local demo login
 
-Frontend, auth, UPI/bank APIs, payments, AI, notifications, extra tables.
+Passwords are bcrypt hashes in `users.password_hash`. Plain demo passwords:
+
+| Email | Password |
+| --- | --- |
+| aarav.sharma@example.com | aarav2026 |
+| riya.mehta@example.com | riya2026 |
+| kabir.shah@example.com | kabir2026 |
+| ananya.rao@example.com | ananya2026 |
+| vihaan.patel@example.com | vihaan2026 |
+
+Existing databases: run `04_add_login_support.sql` once. It adds `password_hash` without dropping rows. Do not re-run `02_seed_data.sql` on a database you want to keep; that file truncates the five tables.
+
+## Out of scope
+
+UPI, bank APIs, payments, AI, notifications, extra business tables. The website reads only `on_the_ledge`, not `on_the_ledge_normalization_demo`.

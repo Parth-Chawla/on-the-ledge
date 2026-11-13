@@ -1,57 +1,33 @@
 import { query } from "@/lib/db";
-import { DEMO_USER_ID } from "@/lib/demo-user";
-
-export type UserRow = {
-  user_id: number;
-  first_name: string;
-  last_name: string;
-  email: string;
-  monthly_income: number | string;
-};
 
 export type BudgetRow = {
   budget_id: number;
   user_id: number;
   budget_month: Date | string;
-  total_amount: number | string;
+  total_amount: number;
 };
 
-export type CategoryBalanceRow = {
+export type EnvelopeRow = {
+  budget_id: number;
+  budget_month: Date | string;
+  user_id: number;
   category_id: number;
   category_name: string;
-  allocated_amount: number | string;
-  spent: number | string;
-  remaining: number | string;
+  allocated_amount: number;
+  spent_amount: number;
+  remaining_amount: number;
 };
 
 export type TransactionRow = {
   transaction_id: number;
   description: string | null;
-  amount: number | string;
+  amount: number;
+  category_id: number;
   category_name: string;
   transaction_date: Date | string;
 };
 
-export type CategoryOption = {
-  category_id: number;
-  category_name: string;
-};
-
-export async function getDemoUser(): Promise<UserRow | null> {
-  const rows = await query<UserRow>(
-    `SELECT user_id, first_name, last_name, email, monthly_income
-     FROM users
-     WHERE user_id = :userId
-     LIMIT 1`,
-    { userId: DEMO_USER_ID },
-  );
-  return rows[0] ?? null;
-}
-
-/** Latest budget for the demo user (by budget_month). */
-export async function getCurrentBudget(
-  userId: number = DEMO_USER_ID,
-): Promise<BudgetRow | null> {
+export async function getCurrentBudget(userId: number): Promise<BudgetRow | null> {
   const rows = await query<BudgetRow>(
     `SELECT budget_id, user_id, budget_month, total_amount
      FROM budgets
@@ -63,36 +39,32 @@ export async function getCurrentBudget(
   return rows[0] ?? null;
 }
 
-export async function getCategoryBalances(
-  budgetId: number,
-): Promise<CategoryBalanceRow[]> {
-  return query<CategoryBalanceRow>(
+export async function getEnvelopes(userId: number, budgetId: number) {
+  return query<EnvelopeRow>(
     `SELECT
-        c.category_id,
-        c.category_name,
-        ba.allocated_amount,
-        COALESCE(SUM(t.amount), 0) AS spent,
-        ba.allocated_amount - COALESCE(SUM(t.amount), 0) AS remaining
-     FROM budget_allocations ba
-     JOIN categories c ON c.category_id = ba.category_id
-     LEFT JOIN transactions t
-       ON t.budget_id = ba.budget_id
-      AND t.category_id = ba.category_id
-     WHERE ba.budget_id = :budgetId
-     GROUP BY c.category_id, c.category_name, ba.allocated_amount
-     ORDER BY c.category_name`,
-    { budgetId },
+        budget_id,
+        budget_month,
+        user_id,
+        category_id,
+        category_name,
+        allocated_amount,
+        spent_amount,
+        remaining_amount
+     FROM v_budget_category_status
+     WHERE user_id = :userId
+       AND budget_id = :budgetId
+     ORDER BY category_name`,
+    { userId, budgetId },
   );
 }
 
-export async function getUserTransactions(
-  userId: number = DEMO_USER_ID,
-): Promise<TransactionRow[]> {
+export async function getTransactions(userId: number) {
   return query<TransactionRow>(
     `SELECT
         t.transaction_id,
         t.description,
         t.amount,
+        t.category_id,
         c.category_name,
         t.transaction_date
      FROM transactions t
@@ -103,10 +75,13 @@ export async function getUserTransactions(
   );
 }
 
-export async function listCategories(): Promise<CategoryOption[]> {
-  return query<CategoryOption>(
-    `SELECT category_id, category_name
-     FROM categories
-     ORDER BY category_name`,
+export async function findUserByEmail(email: string) {
+  const rows = await query<{ user_id: number; password_hash: string }>(
+    `SELECT user_id, password_hash
+     FROM users
+     WHERE email = :email
+     LIMIT 1`,
+    { email },
   );
+  return rows[0] ?? null;
 }

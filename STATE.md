@@ -8,90 +8,70 @@ On-the-ledge is a purpose-based personal budgeting ledger. Users allocate monthl
 
 ## Current stage
 
-**Review 2 MySQL backend package is in `database/`** (schema, seed, routines, demo queries).  
-Verified on local MySQL **8.4.11**. Five tables only. No auth / no Review-2 frontend work.  
-Legacy Review-1 copies also remain under `sql/` and the Next.js app under `src/`.
+Local Next.js site is connected to MySQL database `on_the_ledge` with email/password login. The visual source is `stitch-template/` (not deleted). Normalization demos stay in `on_the_ledge_normalization_demo` and are not used by the website.
 
 ## Work completed
 
-- Review 2 backend under `database/`:
-  - `01_schema.sql`, `02_seed_data.sql`, `03_routines.sql`, `04_review2_demo_queries.sql`, `README.md`
-  - View `v_budget_category_status`
-  - Function `fn_remaining_allocation`
-  - Procedures `sp_add_transaction`, `sp_add_transaction_safe`, `sp_user_month_spending` (cursor)
-  - Triggers `trg_txn_before_insert`, `trg_txn_before_update` (no audit table)
-- Review 1 Next.js demo still present under `src/` (not required for Review 2)
-- Legacy SQL copies under `sql/`
+- Five-table MySQL schema, full seed, Review 2 routines/triggers/view under `database/`
+- Final-review SQL demos under `database/final_review/` (separate demo database)
+- `users.password_hash` added in schema, seed, and `database/04_add_login_support.sql`
+- Login, dashboard, budget planning, add expense, and transactions against the signed-in user
+- HttpOnly session cookie signed with `AUTH_SECRET`
+- Expenses go through `sp_add_transaction_safe` so trigger rejections are shown in the UI
 
 ## Current implementation
 
-Hardcoded demo user: **Aarav**, `user_id = 1` (`src/lib/demo-user.ts`).  
-Current budget = latest row in `budgets` for that user (`ORDER BY budget_month DESC`).  
-Add Expense always attaches the new row to that current `budget_id`.
+Session user id comes only from the cookie. Latest `budgets` row for that user is the current month (November 2026 in the seed).
 
 Pages:
 
-- `/` — dashboard
-- `/transactions` — transaction list
-- `/add-expense` — insert form
+- `/login`
+- `/` dashboard
+- `/budget`
+- `/add-expense`
+- `/transactions`
+
+Demo passwords: lowercase first name + `2026` (`aarav2026`, `riya2026`, `kabir2026`, `ananya2026`, `vihaan2026`).
 
 ## Database status
 
 | Item | Status |
 | --- | --- |
-| Engine | **MySQL 8.4 LTS** |
-| Database name | `on_the_ledge` |
-| Table count | 5 |
-| `transactions.budget_id` | Present and intentional |
-| Schema regeneration | **Do not** re-run without instruction |
-| Supabase | **Not used** |
-| Remaining stored as a column | No (calculated) |
+| Engine | MySQL 8.4 |
+| App database | `on_the_ledge` only |
+| Tables | users, budgets, categories, budget_allocations, transactions |
+| `password_hash` | bcrypt, required |
+| Remaining | Calculated by `v_budget_category_status` |
+| Normalization demo DB | Not used by the website |
 
 ## Frontend status
 
 | Item | Status |
 | --- | --- |
-| Next.js | Yes |
-| Live MySQL reads | Yes (when `.env.local` is set) |
-| Live MySQL writes (Add Expense) | Yes |
-| Auth | Not implemented (hardcoded user 1) |
-| Production UI polish | No |
+| Stitch template | Kept at `stitch-template/` |
+| Live MySQL UI | Yes |
+| Auth | Local email/password only |
+| Registration / OTP / payments | Not implemented |
 
 ## Known limitations
 
-- Requires correct `.env.local` (see `.env.example`); without it, pages show a DB error message.
-- Only Aarav is used in the UI.
-- Seed has allocations only for some categories/budgets (Aarav: Rent + Food).
-- Add Expense does not enforce remaining-budget caps.
-- No automated tests.
+- One budget month per seeded user (November 2026). Expense dates must fall in that month.
+- No registration, password reset, or profile switching.
+- Budget save updates allocations and the monthly total. It does not create new categories.
+- `sql/` still holds an older Review 1 copy. `database/` is the schema source of truth.
 
 ## Current next steps
 
-1. Demo Review 2 from `database/README.md` execution order in Workbench.
-2. Keep frontend/`src/` unchanged unless a later review asks for it.
-3. Auth only when explicitly requested.
-
-## Future implementations
-
-Do not build unless asked: auth, UPI, bank APIs, payments, investments, AI, notifications, analytics dashboards, polished fintech UI.
-
-## Important decisions
-
-- **MySQL 8.4**, not Supabase/Postgres.
-- Remaining amounts are derived with SQL joins.
-- `budget_id` on `transactions` is required.
-- Credentials never ship to the client.
-- Do not regenerate schema/seed without explicit instruction.
+1. Run `database/04_add_login_support.sql` on an existing database if `password_hash` is not there yet.
+2. Set `AUTH_SECRET` and `DB_*` in `.env.local`, then `npm run dev`.
 
 ## Things future AI agents must NOT change without explicit instruction
 
-- Do **not** introduce Supabase, Firebase, MongoDB, or Postgres as the app database.
-- Do not add a sixth business/audit table.
-- Do not remove `transactions.budget_id`.
-- Prefer `database/` as the Review 2 source of truth; do not casually wipe live MySQL data.
-- Do not implement auth, UPI, banks, payments, AI, notifications, or analytics dashboards.
-- Do not polish into a production fintech UI.
-- Do not store remaining balances as table columns.
-- Do not expose MySQL credentials or `mysql2` usage to client components.
-- Do not delete `ARCHITECTURE.md`, `CHECKLIST.md`, or `STATE.md`.
-- After meaningful work: update `STATE.md` and `CHECKLIST.md`; update `ARCHITECTURE.md` only when architecture changes.
+- Do not connect the app to `on_the_ledge_normalization_demo`, Supabase, Firebase, MongoDB, or Postgres.
+- Do not add a sixth business table.
+- Do not store plain-text passwords or remaining balances as columns.
+- Do not remove `transactions.budget_id` or the allocation/expense triggers.
+- Do not delete `stitch-template/`.
+- Do not expose database credentials or `mysql2` usage to client components.
+- Do not trust a `user_id` sent from the browser.
+- After meaningful work, update `STATE.md` and `CHECKLIST.md`.

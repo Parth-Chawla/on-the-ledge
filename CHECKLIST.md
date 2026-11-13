@@ -25,9 +25,12 @@
 - [x] Initialize the Next.js application
 - [x] Connect Next.js to local MySQL with server-side `mysql2/promise` pool + env vars
 - [x] Dashboard: current budget + categories Allocated / Spent / Remaining (join query)
-- [x] Transactions page: list for hardcoded `user_id = 1` (Aarav)
+- [x] Transactions page: list only the signed-in user's expenses, with search and category filter
 - [x] Add Expense form: insert into `transactions` (Server Action)
 - [x] Remove in-memory / TypeScript seed demo path
 - [x] Keep handoff docs accurate (`ARCHITECTURE.md`, `CHECKLIST.md`, `STATE.md`)
-- [ ] Add real authentication (not required for Review 1)
-- [ ] Keep the UI basic until an explicit polish pass is requested
+- [x] Add real email/password login with bcrypt hashes and an HttpOnly session cookie
+- [x] Scope every read and write to the authenticated user
+- [x] Dashboard, budget planning, add expense, and transactions use live MySQL data
+- [x] Keep the supplied `stitch-template/` design as the visual source
+- [x] Keep remaining balances calculated, not stored

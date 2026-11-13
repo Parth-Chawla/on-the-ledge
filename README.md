@@ -6,57 +6,38 @@ Instead of only recording where money was spent, the project helps users assign 
 
 ## Status
 
-Under construction.
-
-The database foundation and budgeting logic are currently being developed. The frontend will be expanded later.
+Local website connected to MySQL `on_the_ledge`, with email-and-password login.
 
 ## Core Features
 
 - Multiple users with separate budgets and transactions
-- Monthly budget creation
-- Category-wise budget allocation
-- Expense transaction logging
-- Remaining-budget calculation
-- Database validation for invalid or over-budget expenses
+- Email and password login (HttpOnly session cookie)
+- Monthly budget and category allocations
+- Expense logging through `transactions`
+- Remaining balance derived from allocations minus expenses
+- Database triggers reject expenses that exceed a category allocation
 
 ## Technology
 
-- MySQL 8.0+
-- MySQL Workbench
-- Next.js and TypeScript for the application interface
+- MySQL 8.4
+- Next.js and TypeScript
+- bcrypt password hashes
 
 ## Local Setup
 
-### 1. Clone the repository
-
-```
-git clone <repository-url>
-cd on-the-ledge
-```
-
-### 2. Install dependencies
+### 1. Install dependencies
 
 ```
 npm install
 ```
 
-### 3. Configure local environment variables
+### 2. Configure local environment variables
 
-Create a `.env.local` file using `.env.example` as a reference.
+Copy `.env.example` to `.env.local` and set the real MySQL password and a long `AUTH_SECRET`. Do not commit `.env.local`.
 
-```
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_NAME=on_the_ledge
-DB_USER=root
-DB_PASSWORD=your_local_mysql_password
-```
+### 3. Set up MySQL
 
-Do not commit `.env.local`.
-
-### 4. Set up MySQL
-
-Open MySQL Workbench, connect to your local MySQL server, and run these files in order:
+Fresh database, in order:
 
 ```
 database/01_schema.sql
@@ -64,19 +45,23 @@ database/02_seed_data.sql
 database/03_routines.sql
 ```
 
-To explore and test the database features, open:
+If `on_the_ledge` already exists, do not re-run the seed (it truncates data). Run only:
 
 ```
-database/04_review2_demo_queries.sql
+database/04_add_login_support.sql
 ```
 
-### 5. Run the application
+The website must not be pointed at `on_the_ledge_normalization_demo`.
+
+### 4. Run the application
 
 ```
 npm run dev
 ```
 
-Open `http://localhost:3000` in a browser.
+Open `http://localhost:3000`.
+
+Demo passwords are `lowercase first name + 2026` (for example `aarav2026`). The full list is in `database/README.md`.
 
 ## Database Structure
 

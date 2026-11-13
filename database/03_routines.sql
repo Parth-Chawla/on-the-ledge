@@ -1,7 +1,3 @@
--- ============================================================
--- ON-THE-LEDGE — REVIEW 2 ROUTINES (MySQL 8.4)
--- Experiment 5 view + Experiment 6 function / procedures / triggers
---
 -- Objects created:
 --   VIEW  v_budget_category_status
 --   FUNCTION  fn_remaining_allocation(budget_id, category_id)
@@ -10,9 +6,6 @@
 --   PROCEDURE sp_user_month_spending(...)    -- cursor total
 --   TRIGGER   trg_txn_before_insert
 --   TRIGGER   trg_txn_before_update
---
--- No audit / extra business tables.
--- ============================================================
 
 USE on_the_ledge;
 
@@ -158,7 +151,7 @@ END //
 -- ============================================================
 CREATE PROCEDURE sp_user_month_spending(
     IN  p_user_id      INT,
-    IN  p_budget_month DATE,          -- pass first-of-month, e.g. 2026-09-01
+    IN  p_budget_month DATE,          -- pass first-of-month, e.g. 2026-11-01
     OUT p_total_spent  DECIMAL(10,2)
 )
 BEGIN
@@ -304,7 +297,6 @@ BEGIN
 END //
 
 DELIMITER ;
-
 -- Confirm routines exist
 SHOW FULL TABLES WHERE Table_type = 'VIEW';
 SHOW FUNCTION STATUS WHERE Db = 'on_the_ledge';

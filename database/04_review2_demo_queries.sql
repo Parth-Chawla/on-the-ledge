@@ -1,22 +1,6 @@
--- ============================================================
--- ON-THE-LEDGE — REVIEW 2 DEMO QUERIES (MySQL Workbench)
--- Run section by section after:
---   01_schema.sql -> 02_seed_data.sql -> 03_routines.sql
---
--- Seed snapshot used by expected results:
---   5 users, 5 Sept budgets, 6 categories, 30 allocations, 5 txns
---   Aarav Food alloc 6000, spent 750 → remaining 5250
---   Aarav Rent alloc 10000, spent 10000 → remaining 0
---
--- Safe failure demos use sp_add_transaction_safe / restore steps
--- so seed data is not corrupted.
--- ============================================================
-
 USE on_the_ledge;
 
--- ############################################################
 -- MEMBER 1 — Experiment 4B: Constraints + Set Operations
--- ############################################################
 
 -- ------------------------------------------------------------
 -- 4B-A) Show constraint catalogue (talking point, not a test INSERT)
@@ -79,26 +63,26 @@ JOIN categories c ON c.category_id = t.category_id
 WHERE c.category_name = 'Food';
 
 -- ------------------------------------------------------------
--- 4B-D) INTERSECT — users who have a September budget AND have expenses
+-- 4B-D) INTERSECT — users who have a November budget AND have expenses
 -- Expected: Aarav, Riya, Kabir, Ananya (not Vihaan — no transactions).
 -- ------------------------------------------------------------
 SELECT u.user_id, u.first_name
 FROM users u
 JOIN budgets b ON b.user_id = u.user_id
-WHERE b.budget_month = '2026-09-01'
+WHERE b.budget_month = '2026-11-01'
 INTERSECT
 SELECT u.user_id, u.first_name
 FROM users u
 JOIN transactions t ON t.user_id = u.user_id;
 
 -- ------------------------------------------------------------
--- 4B-E) EXCEPT — users with a Sept budget but zero transactions
+-- 4B-E) EXCEPT — users with a November budget but zero transactions
 -- Expected: Vihaan only.
 -- ------------------------------------------------------------
 SELECT u.user_id, u.first_name
 FROM users u
 JOIN budgets b ON b.user_id = u.user_id
-WHERE b.budget_month = '2026-09-01'
+WHERE b.budget_month = '2026-11-01'
 EXCEPT
 SELECT u.user_id, u.first_name
 FROM users u
@@ -167,7 +151,7 @@ JOIN categories c ON c.category_id = ba.category_id
 LEFT JOIN transactions t
        ON t.budget_id = ba.budget_id
       AND t.category_id = ba.category_id
-WHERE b.budget_month = '2026-09-01'
+WHERE b.budget_month = '2026-11-01'
   AND u.user_id = 1
 ORDER BY c.category_name;
 -- Expected for Aarav: Rent + Food have expense rows; others NULL.
@@ -219,7 +203,7 @@ START TRANSACTION;
 CALL sp_add_transaction(
     1, 1, 2, 250.00,
     'Demo chai snack (will roll back)',
-    '2026-09-07'
+    '2026-11-07'
 );
 SELECT fn_remaining_allocation(1, 2) AS food_remaining_after_demo_insert;
 -- Expected temporarily: 5000.00
@@ -233,17 +217,17 @@ SELECT fn_remaining_allocation(1, 2) AS food_remaining_restored;
 -- ############################################################
 
 -- ------------------------------------------------------------
--- 6-C) Cursor procedure — Aarav September total via row-by-row sum
+-- 6-C) Cursor procedure — Aarav November total via row-by-row sum
 -- Expected: 10000 + 750 = 10750.00
 -- ------------------------------------------------------------
 SET @aarav_sept_total = NULL;
-CALL sp_user_month_spending(1, '2026-09-01', @aarav_sept_total);
+CALL sp_user_month_spending(1, '2026-11-01', @aarav_sept_total);
 SELECT @aarav_sept_total AS aarav_september_spending;
 
--- Cursor — Vihaan September (full allocations, but no expenses)
+-- Cursor — Vihaan November (full allocations, but no expenses)
 -- Expected: 0.00
 SET @vihaan_sept_total = NULL;
-CALL sp_user_month_spending(5, '2026-09-01', @vihaan_sept_total);
+CALL sp_user_month_spending(5, '2026-11-01', @vihaan_sept_total);
 SELECT @vihaan_sept_total AS vihaan_september_spending;
 
 -- ------------------------------------------------------------
@@ -254,7 +238,7 @@ SET @status = NULL;
 CALL sp_add_transaction_safe(
     1, 1, 1, 1.00,
     'Should fail: rent over allocation',
-    '2026-09-08',
+    '2026-11-08',
     @status
 );
 SELECT @status AS trigger_demo_exceeds_allocation;
@@ -275,7 +259,7 @@ SET @status = NULL;
 CALL sp_add_transaction_safe(
     1, 1, 6, 100.00,
     'Should fail: Savings temporarily not allocated',
-    '2026-09-08',
+    '2026-11-08',
     @status
 );
 SELECT @status AS trigger_demo_not_allocated;
@@ -293,7 +277,7 @@ WHERE budget_id = 1;
 
 -- ------------------------------------------------------------
 -- 6-F) Trigger FAIL #3 — no monthly budget for October
--- Aarav only has 2026-09-01 budget. October date must fail.
+-- Aarav only has a 2026-11-01 budget. An October date must fail.
 -- ------------------------------------------------------------
 SET @status = NULL;
 CALL sp_add_transaction_safe(
@@ -312,7 +296,7 @@ SET @status = NULL;
 CALL sp_add_transaction_safe(
     1, 1, 2, 200.00,
     'Valid food demo row — delete after talk',
-    '2026-09-09',
+    '2026-11-09',
     @status
 );
 SELECT @status AS safe_success_status;

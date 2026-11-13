@@ -38,6 +38,7 @@ CREATE TABLE users (
     middle_name     VARCHAR(50)  NULL,
     last_name       VARCHAR(50)  NOT NULL,
     email           VARCHAR(100) NOT NULL UNIQUE,
+    password_hash   VARCHAR(255) NOT NULL,
     monthly_income  DECIMAL(10,2) NOT NULL DEFAULT 0,
     CONSTRAINT chk_income CHECK (monthly_income >= 0)
 ) ENGINE=InnoDB;
@@ -49,7 +50,7 @@ CREATE TABLE users (
 CREATE TABLE budgets (
     budget_id       INT AUTO_INCREMENT PRIMARY KEY,
     user_id         INT NOT NULL,
-    budget_month    DATE NOT NULL,          -- first-of-month, e.g. 2026-09-01
+    budget_month    DATE NOT NULL,          -- first-of-month, e.g. 2026-11-01
     total_amount    DECIMAL(10,2) NOT NULL,
     CONSTRAINT fk_budget_user FOREIGN KEY (user_id)
         REFERENCES users(user_id)

@@ -18,6 +18,7 @@ Local Next.js site is connected to MySQL database `on_the_ledge` with email/pass
 - Login, dashboard, budget planning, add expense, and transactions against the signed-in user
 - HttpOnly session cookie signed with `AUTH_SECRET`
 - Expenses go through `sp_add_transaction_safe` so trigger rejections are shown in the UI
+- Active budget period is the latest budget row; existing September 2026 data can be migrated safely with `database/05_migrate_budget_to_november_2026.sql`
 
 ## Current implementation
 

@@ -220,15 +220,15 @@ SELECT fn_remaining_allocation(1, 2) AS food_remaining_restored;
 -- 6-C) Cursor procedure — Aarav November total via row-by-row sum
 -- Expected: 10000 + 750 = 10750.00
 -- ------------------------------------------------------------
-SET @aarav_sept_total = NULL;
-CALL sp_user_month_spending(1, '2026-11-01', @aarav_sept_total);
-SELECT @aarav_sept_total AS aarav_september_spending;
+SET @aarav_nov_total = NULL;
+CALL sp_user_month_spending(1, '2026-11-01', @aarav_nov_total);
+SELECT @aarav_nov_total AS aarav_november_spending;
 
 -- Cursor — Vihaan November (full allocations, but no expenses)
 -- Expected: 0.00
-SET @vihaan_sept_total = NULL;
-CALL sp_user_month_spending(5, '2026-11-01', @vihaan_sept_total);
-SELECT @vihaan_sept_total AS vihaan_september_spending;
+SET @vihaan_nov_total = NULL;
+CALL sp_user_month_spending(5, '2026-11-01', @vihaan_nov_total);
+SELECT @vihaan_nov_total AS vihaan_november_spending;
 
 -- ------------------------------------------------------------
 -- 6-D) Trigger FAIL #1 — exceeds remaining Rent allocation

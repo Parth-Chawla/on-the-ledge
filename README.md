@@ -51,6 +51,12 @@ If `on_the_ledge` already exists, do not re-run the seed (it truncates data). Ru
 database/04_add_login_support.sql
 ```
 
+If the existing app database has September 2026 budgets, also run
+`database/05_migrate_budget_to_november_2026.sql`. This migration preserves
+budget IDs, allocations, and expense amounts while moving September transaction
+dates into November. It rolls back rather than merging data if a user already
+has both a September and November budget.
+
 The website must not be pointed at `on_the_ledge_normalization_demo`.
 
 ### 4. Run the application

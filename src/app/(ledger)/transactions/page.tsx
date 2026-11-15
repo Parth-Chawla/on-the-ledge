@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export default async function TransactionsPage() {
   const user = await requireUser();
   const budget = await getCurrentBudget(user.user_id);
-  const rows = await getTransactions(user.user_id);
+  const rows = budget ? await getTransactions(user.user_id, budget.budget_id) : [];
   const monthLabel = budget
     ? `${user.first_name} ${user.last_name} • ${formatMonth(budget.budget_month)}`
     : `${user.first_name} ${user.last_name}`;

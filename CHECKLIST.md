@@ -34,3 +34,5 @@
 - [x] Dashboard, budget planning, add expense, and transactions use live MySQL data
 - [x] Keep the supplied `stitch-template/` design as the visual source
 - [x] Keep remaining balances calculated, not stored
+- [x] Use November 2026 as the active budget cycle across dashboard, planning, expense entry, and transactions
+- [x] Provide a transactional, non-destructive migration for existing September 2026 budgets

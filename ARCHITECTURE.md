@@ -17,6 +17,8 @@ Review-2 database package is the backend source of truth under `database/`.
 
 The app refuses to connect if `DB_NAME` is not `on_the_ledge`. It does not use Supabase or external financial APIs.
 
+The active budget for each signed-in user is the latest `budgets.budget_month` row. The intended active cycle is November 2026; dashboard totals, category envelopes, the expense date bounds, and the transaction list are all scoped to that budget ID.
+
 ```
 Browser
   → Next.js server actions / server components
@@ -66,7 +68,7 @@ budgets M:N categories  via  budget_allocations
 
 - Hardcoded Review-1 user: `user_id = 1` (Aarav) in `src/lib/demo-user.ts`.
 - `/` — dashboard: current budget + category Allocated / Spent / Remaining.
-- `/transactions` — list of that user’s transactions.
+- `/transactions` — list of that user’s active-budget transactions.
 - `/add-expense` — form that inserts into `transactions` via a Server Action.
 - `src/lib/db.ts` — pool; `src/lib/queries.ts` — read queries; `src/app/actions.ts` — insert.
 

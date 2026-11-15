@@ -22,6 +22,7 @@ Do **not** add business/audit tables for the trigger demo.
 | `02_seed_data.sql` | Exactly 5 rows per table (trigger-safe) |
 | `03_routines.sql` | View, function, procedures, triggers |
 | `04_review2_demo_queries.sql` | Experiment 4B / 5 / 6 demos for Workbench |
+| `05_migrate_budget_to_november_2026.sql` | Safe, transactional September-to-November budget migration |
 | `README.md` | This guide |
 
 Target engine: **MySQL 8.4** (MySQL 8.0.31+ required for `INTERSECT` / `EXCEPT`).
@@ -101,6 +102,15 @@ Passwords are bcrypt hashes in `users.password_hash`. Plain demo passwords:
 | vihaan.patel@example.com | vihaan2026 |
 
 Existing databases: run `04_add_login_support.sql` once. It adds `password_hash` without dropping rows. Do not re-run `02_seed_data.sql` on a database you want to keep; that file truncates the five tables.
+
+For an existing app database whose active budgets are dated `2026-09-01`, run
+`05_migrate_budget_to_november_2026.sql` once. It updates those budget months to
+`2026-11-01`, shifts their September transaction dates into November, and keeps
+the existing budget IDs, allocations, and transaction amounts. The migration
+uses a transaction and refuses to merge if a user already has a November budget;
+resolve such duplicate-month data manually before retrying. It does not drop or
+truncate tables or rerun seed data. It is safe to run on a database already at
+November 2026 (no rows are changed).
 
 ## Out of scope
 

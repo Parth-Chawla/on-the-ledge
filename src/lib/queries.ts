@@ -58,7 +58,7 @@ export async function getEnvelopes(userId: number, budgetId: number) {
   );
 }
 
-export async function getTransactions(userId: number) {
+export async function getTransactions(userId: number, budgetId: number) {
   return query<TransactionRow>(
     `SELECT
         t.transaction_id,
@@ -70,8 +70,9 @@ export async function getTransactions(userId: number) {
      FROM transactions t
      JOIN categories c ON c.category_id = t.category_id
      WHERE t.user_id = :userId
+       AND t.budget_id = :budgetId
      ORDER BY t.transaction_date DESC, t.transaction_id DESC`,
-    { userId },
+     { userId, budgetId },
   );
 }
 

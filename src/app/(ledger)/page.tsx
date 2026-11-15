@@ -19,7 +19,7 @@ export default async function DashboardPage() {
   }
 
   const envelopes = await getEnvelopes(user.user_id, budget.budget_id);
-  const transactions = (await getTransactions(user.user_id)).slice(0, 5);
+  const transactions = (await getTransactions(user.user_id, budget.budget_id)).slice(0, 5);
   const allocated = envelopes.reduce((sum, row) => sum + Number(row.allocated_amount), 0);
   const spent = envelopes.reduce((sum, row) => sum + Number(row.spent_amount), 0);
   const remaining = allocated - spent;
@@ -31,7 +31,7 @@ export default async function DashboardPage() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs uppercase tracking-wider text-outline">
-            {formatMonth(budget.budget_month)} budget cycle
+            {formatMonth(budget.budget_month).toUpperCase()} BUDGET CYCLE
           </p>
           <h1 className="font-display text-3xl font-semibold tracking-tight">
             Good to see you, {user.first_name}
